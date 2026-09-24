@@ -25,7 +25,14 @@
     "paid_provider_calls": 0,
     "native_host_sessions_verified": []
   },
-  "remote_ci": "pending-initial-publication",
+  "remote_ci": {
+    "status": "blocked-before-job-execution",
+    "run_url": "https://github.com/xnuonux/jev-reflex/actions/runs/35951925271",
+    "source_commit": "4b530eaadbec894bb4de428e1a36164195f7eb08",
+    "jobs_created": 6,
+    "jobs_executed": 0,
+    "platforms_qualified": []
+  },
   "sources": {
     "adapters/pi/bridge.mjs": "0fa244cacbebc60d3f5fbf86cbb50024f0437b4c83583d09ebf3e0a662a2496f",
     "adapters/pi/bridge.test.mjs": "24c25ad323c5508793b331182d0cbdf326177c25a844170fdacbccf5a355d444",

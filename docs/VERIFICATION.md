@@ -28,4 +28,4 @@ The review preserves two limits: distinct-ID in-flight calls are not coalesced, 
 - No measured accuracy gain, token savings, cost reduction or superiority over another wrapper.
 - No authenticated tenant isolation, adversarial host protection, ledger rollback protection or provider-enforced billing cap.
 
-The repository CI matrix is configured for Python 3.11 and 3.13 on Windows, Linux and macOS. Publication-time run results are recorded in the release notes; configuration alone is not a passing run. Local evidence remains valid independently of remote CI availability.
+The repository CI matrix is configured for Python 3.11 and 3.13 on Windows, Linux and macOS. [The publication run](https://github.com/xnuonux/jev-reflex/actions/runs/35951925271) created six jobs, but hosted-runner provisioning was blocked before any job step started. Consequently **zero remote tests executed**; Linux/macOS and Python 3.11 remain unverified. An initial YAML command quoting error was corrected before that run. No passing CI badge is claimed. Local Windows evidence remains separate.
