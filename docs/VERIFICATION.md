@@ -41,8 +41,11 @@ independent of the builder, not a third-party human audit.
 
 ## Limits retained
 
-- No paid TypeSafe/OpenRouter inference or comparative performance/accuracy
-  benchmark. Byte limits are heuristics, not an exact provider tokenizer.
+- The original release checks above used no paid provider calls. A subsequent
+  [direct TypeSafe real-corpus stress test](LIVE-GODSKILLS-20260924.md) submitted
+  452 questions in 25 requests, including a rejected response. It is separate
+  evidence, not a comparative agent-workflow benchmark. Byte limits remain
+  heuristics, not an exact provider tokenizer.
 - Cancelling an MCP request/disconnection is not durable job cancellation. The
   bounded worker can continue; use `cancel_job` and inspect. Issued calls cannot
   be recalled and are not refunded. A crashed child can remain pending.

@@ -1,0 +1,94 @@
+{
+  "schema": "jev-live-corpus-evidence/v1",
+  "utcDate": "2026-09-24",
+  "pluginSource": "25e9c1305c5f229d2fab13c4d5e68a3ca245673b",
+  "provider": "TypeSafe direct",
+  "model": "jev-1.13.0",
+  "platform": "Windows / Python 3.13.15",
+  "publicCorpus": "Frozen Godskills collections manifest; full pinned public upstream bodies",
+  "populationGroups": 4139,
+  "selectedBodies": 180,
+  "uniqueSourceBodies": 180,
+  "selection": "Stratified 250-4500-byte complete bodies; language variants and hashes in prior wave receipts excluded. Not a representative all-size corpus sample.",
+  "calls": 25,
+  "questionsSubmitted": 452,
+  "questionsAccepted": 444,
+  "questionsQuarantined": 8,
+  "requestSuccesses": 24,
+  "requestFailures": 1,
+  "failureReason": "distribution-sum; one question in an eight-question batch summed to 0.99",
+  "automaticPaidRetries": 0,
+  "uniquePaidRequestDigests": 25,
+  "peakConcurrency": 4,
+  "maxQuestionsPerRequest": 64,
+  "requestLatencySeconds": {
+    "min": 0.5094758999985061,
+    "median": 0.6829056999995373,
+    "p95NearestRank": 0.8098485000009532,
+    "max": 1.5617953999972087
+  },
+  "typedOutcomes": {
+    "proposal": 227,
+    "abstain": 217
+  },
+  "routing": {
+    "validBodies": 172,
+    "counts": {
+      "abstain": 82,
+      "adapter": 54,
+      "method": 32,
+      "reference": 3,
+      "stub": 1
+    },
+    "invalidBodies": 8
+  },
+  "featureScan": {
+    "bodies": 32,
+    "questions": 256,
+    "outcomes": {
+      "proposal": 131,
+      "abstain": 125
+    }
+  },
+  "blindReview": {
+    "sampleSize": 24,
+    "proposed": 11,
+    "agreements": 10,
+    "statuses": {
+      "proposal": 11,
+      "abstain": 11,
+      "invalid-batch": 2
+    },
+    "wilson95": [
+      0.6226353745137962,
+      0.9837682477371741
+    ],
+    "groundTruth": "independent GPT-6 Sol max source review; not human ground truth"
+  },
+  "usage": {
+    "inputTokens": 225236,
+    "outputTokens": 14107,
+    "providerReportedUSD": null,
+    "tariffEstimatedUSD": 0.009459912000000001,
+    "tariffUSDPerMillionInputTokens": 0.042,
+    "pricingSource": "https://docs.typesafe.ai/models",
+    "conservativeReservedUSD": 0.5,
+    "ownerAllowanceUSD": 0.5,
+    "costBasis": "Provider token counts times published tariff; USD charge not supplied. Full reservations retained including failed batch."
+  },
+  "pendingCalls": 0,
+  "sourceManifestSha256": "00f8b576fd76c12584a47795db8f04f7ae49c6db66471f3751cea099ebf314de",
+  "frozenInputSha256": "4e8f35cc1ef05603d0798c49f2ff528dbbe56cbf6d6a67ed284e352f77552086",
+  "reviewQueueSha256": "df2736fe635ebb7d9e2c2c3f7e7e11b8a8bdff30c1d1617200f916f64ce4fff0",
+  "independentReviewSha256": "7ed1a058c057eef2042b2895aa155c45950a3caed14667e2b6cca2e8a88bbc63",
+  "limits": [
+    "Live real-corpus classification, not corpus refinement completion",
+    "No matched frontier-only workflow or saved-engineer-time measurement",
+    "No provider saturation or thousand-request benchmark",
+    "No installed skill or production Resident modification",
+    "One malformed question quarantines the whole paid batch; job stops until explicit review",
+    "Direct provider token usage is absent from failed semantic receipt, recovered here from separately captured response",
+    "Conservative per-call reservation is much higher than tariff cost; no unused reservation reclaimed",
+    "Source licensing and mixed provenance remain separate gates"
+  ]
+}

@@ -182,4 +182,9 @@ python -m build
 
 The test suite uses fake providers, real SQLite concurrency, real subprocesses, and an MCP client/server exchange. CI is configured for Windows, Linux and macOS. Read the current verification record for what has actually completed.
 
+A subsequent [live TypeSafe corpus stress test](docs/LIVE-GODSKILLS-20260924.md)
+submitted 452 typed questions in 25 requests, up to 64 questions per request.
+The report preserves abstentions, an invalid provider response, independent
+review disagreements and the distinction between tariff estimates and bills.
+
 Your host owns actions. Reflex helps decide where to spend attention.
