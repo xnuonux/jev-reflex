@@ -147,6 +147,72 @@ def make_server(service=None):
         'On abstain/unavailable continue reasoning yourself; no polling or retry loop. '
         'Recipes are opt-in and never change a model, delete context, or certify completion.'))
 
+    @server.tool(annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, openWorldHint=True))
+    def jev_reflex_workflow(project: str, task: str, request_id: str, privacy_namespace: str,
+                           workflow: str, packet: dict) -> dict:
+        """Run a versioned workflow on explicit selected evidence. See WORKFLOWS.md.
+
+        progress_watch/v1 {goal,steps:[{action,observation,evidence_ref}]};
+        skill_shortlist/v1 {goal,candidates:[{id,description,instructions,revision}]};
+        swarm_inbox/v1 {goal,reports:[{id,status,summary,source_ref}]};
+        patch_review/v1 {goal,diff,requirements,checks}; handoff_check/v1 {original,handoff};
+        memory_conflict/v1 {existing,incoming}; decision_pack/v1 {state,operations:
+        [{id,description,candidates:[{id,description}]}]}. No source collection or actions.
+        Skill selection uses up to TWO dependent calls, all others zero or one shared call.
+        Stable request_id binds the complete input; no retries under new IDs. Unavailable
+        or uncertain means use host reasoning. Reports and memory are never discarded.
+        """
+        from .workflows import run
+        return run(service,project,task,request_id,privacy_namespace,workflow,packet)
+
+    @server.tool(annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, openWorldHint=True))
+    def jev_reflex_host_event(project: str, task: str, request_id: str, privacy_namespace: str,
+                             event: str, packet: dict) -> dict:
+        """Explicit host event adapter; not an automatic Codex interceptor.
+
+        after_tool=>progress_watch, skill_selection=>skill_shortlist, child_report=>swarm_inbox,
+        source_changed=>patch_review, before_handoff=>handoff_check, memory_proposal=>memory_conflict,
+        before_tool=>decision_pack. Packets use the corresponding workflow schema. Only
+        caller-selected authorized text is sent. A report status is caller supplied.
+        """
+        from .workflows import host_event
+        return host_event(service,project,task,request_id,privacy_namespace,event,packet)
+
+    @server.tool(annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, openWorldHint=False))
+    def jev_reflex_artifact_put(project: str, privacy_namespace: str, content: str) -> dict:
+        """Explicitly save <=1MiB supplied text locally in plaintext by content hash.
+
+        Zero provider calls. Unlike inference receipts this intentionally retains raw text.
+        No arbitrary path, file scan, deletion or automatic upload. Avoid credentials.
+        Namespace labels are accounting boundaries, not hostile-user authentication.
+        """
+        from .artifacts import put
+        return put(service,project,privacy_namespace,content)
+
+    @server.tool(annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, openWorldHint=False))
+    def jev_reflex_artifact_get(project: str, privacy_namespace: str, artifact_id: str,
+                               start: int=0, length: int=6000) -> dict:
+        """Retrieve hash-verified local text, at most 16000 Unicode codepoints per call.
+
+        Explicit content returned to the caller, never a provider call. Does not prove
+        the original external file is still current. Same project/namespace required.
+        """
+        from .artifacts import get
+        return get(service,project,privacy_namespace,artifact_id,start,length)
+
+    @server.tool(annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, openWorldHint=False))
+    def jev_reflex_calibration_audit(project: str, privacy_namespace: str, recipe_revision: str,
+                                    model: str, split: str, examples: list[dict]) -> dict:
+        """Offline caller-labeled evaluation; no inference, training or automatic promotion.
+
+        examples:[{family,text,expected:boolean,probability_true:number}]. Stable family
+        hashing selects tune/holdout; repeated cross-revision holdout use is marked.
+        Reports abstentions, Brier and accepted accuracy, not general calibration proof.
+        Stores hashes and exposure only. Labels/predictions remain caller assertions.
+        """
+        from .calibration import audit
+        return audit(service,project,privacy_namespace,recipe_revision,model,split,examples)
+
     @server.tool(annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, openWorldHint=False))
     def jev_reflex_controller_open(project: str, task: str, privacy_namespace: str,
                                    controller_id: str, snapshot_id: str,

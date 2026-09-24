@@ -49,7 +49,7 @@ def initialize(root, daily_usd, enabled):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description='Jev Reflex: small decisions, host-owned actions.')
-    parser.add_argument('--version', action='version', version='jev-reflex 0.5.0')
+    parser.add_argument('--version', action='version', version='jev-reflex 0.6.0')
     sub = parser.add_subparsers(dest='command', required=True)
     sub.add_parser('serve', help='Start stdio MCP; install the [mcp] extra.')
     sub.add_parser('doctor', help='Local readiness/accounting only; no inference.')

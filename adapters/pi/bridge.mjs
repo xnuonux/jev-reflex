@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
 import { StringDecoder } from 'node:string_decoder';
 
-const METHODS = new Set(['status', 'batch', 'shared', 'bulk', 'inspect_job', 'cancel_job','controller_open','controller_event','controller_inspect', 'recipe', 'context', 'record_outcome', 'metrics']);
+const METHODS = new Set(['status', 'batch', 'shared', 'bulk', 'inspect_job', 'cancel_job','controller_open','controller_event','controller_inspect','workflow','host_event','artifact_put','artifact_get','calibration_audit', 'recipe', 'context', 'record_outcome', 'metrics']);
 
 // Host-owned command configuration only. Never take command/args from a model tool argument.
 export async function callReflex(method, args, { command = 'jev-reflex', prefixArgs = [], signal, timeoutMs = 60000 } = {}) {

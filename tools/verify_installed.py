@@ -38,7 +38,13 @@ async def verify():
             async with ClientSession(read,write) as session:
                 initialized=await session.initialize()
                 tools=await session.list_tools()
-                assert len(tools.tools)==13
+                assert len(tools.tools)==18
+                workflow=await session.call_tool('jev_reflex_workflow',dict(project='install',task='check',
+                    request_id='worker',privacy_namespace='synthetic',workflow='swarm_inbox/v1',
+                    packet=dict(goal='Integrate',reports=[dict(id='a',status='blocked',summary='Missing evidence',source_ref='local:1')])))
+                assert not workflow.isError
+                wr=workflow.structuredContent or json.loads(workflow.content[0].text)
+                assert wr['model_calls_this_invocation']==0 and wr['advice']['reports'][0]['priority']=='surface_now'
                 controller_key=dict(project='install',task='check',privacy_namespace='synthetic',controller_id='route')
                 opened=await session.call_tool('jev_reflex_controller_open', controller_key | dict(
                     snapshot_id='v1', signal=dict(primitive='noul',question='Relevant?')))
@@ -78,7 +84,7 @@ async def verify():
                 assert not cancelled.isError and (cancelled.structuredContent or json.loads(cancelled.content[0].text))['cancelled']
                 page=await session.call_tool('jev_reflex_inspect_job',key | dict(offset=900))
                 assert not page.isError and len((page.structuredContent or json.loads(page.content[0].text))['items'])==100
-        print(json.dumps(dict(installed_package=True,outside_source_cwd=True,mcp_tools=13,
+        print(json.dumps(dict(installed_package=True,outside_source_cwd=True,mcp_tools=18,
                               controller_tools_verified=True,controller_demo_verified=True,
                               negotiated_protocol=initialized.protocolVersion,
                               paid_provider_calls=0,demo_synthetic_calls=1)))

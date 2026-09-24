@@ -14,3 +14,4 @@ quota-overrides.json
 local-results/
 /build-release.log
 /test-v04.log
+/local-test-v060.log

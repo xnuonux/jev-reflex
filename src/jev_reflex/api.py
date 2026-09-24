@@ -3,6 +3,8 @@ from inspect import signature
 from .reflex import Service, require
 
 METHODS = {
+    'workflow': 'run', 'host_event': 'host_event',
+    'artifact_put': 'put', 'artifact_get': 'get', 'calibration_audit': 'audit',
     'status': 'status', 'batch': 'judge', 'recipe': 'recipe',
     'record_outcome': 'record_outcome', 'metrics': 'recipe_metrics',
     'context': 'context',
@@ -14,7 +16,12 @@ METHODS = {
 def invoke(service: Service, method: str, arguments: dict) -> dict:
     require(type(method) is str and method in METHODS, 'unknown-method')
     require(type(arguments) is dict, 'arguments-object')
-    if method.startswith('controller_'):
+    if method in ('workflow','host_event','artifact_put','artifact_get','calibration_audit'):
+        from functools import partial
+        from . import workflows, artifacts, calibration
+        module = workflows if method in ('workflow','host_event') else calibration if method=='calibration_audit' else artifacts
+        target = partial(getattr(module, METHODS[method]), service)
+    elif method.startswith('controller_'):
         from functools import partial
         from . import controllers
         target = partial(getattr(controllers, METHODS[method]), service)

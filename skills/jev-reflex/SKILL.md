@@ -27,6 +27,22 @@ Skip Jev when code can answer exactly, the judgment is trivial, required evidenc
 
 ## Workflows
 
+For repeated failed attempts, use `jev_reflex_workflow` with `progress_watch/v1`.
+For an ambiguous skill roster, use `skill_shortlist/v1` (up to two calls).
+For several returned worker reports, use `swarm_inbox/v1`; preserve all source reports.
+For a consequential diff use `patch_review/v1`; before a substantial handoff use
+`handoff_check/v1`. `memory_conflict/v1` compares supplied claims without changing memory.
+`decision_pack/v1` speculates independent branch candidates in one call. Exact packet
+schemas and limits are in [WORKFLOWS.md](WORKFLOWS.md). These calls are explicit and selective,
+not automatic before every action. `host_event` maps supported named events to these packs.
+
+Use `artifact_put` only when explicitly retaining selected text locally is appropriate:
+it stores plaintext, unlike inference receipts. `artifact_get` retrieves hash-verified
+codepoint ranges. Never erase original evidence or treat a stored hash as source freshness.
+`calibration_audit` evaluates caller-labeled examples offline and records holdout exposure;
+it never trains models or automatically promotes a recipe. Missing real outcome evidence
+must not be filled with self-grades.
+
 `context_triage/v1`, `routing_advice/v1`, `tool_advice/v1`, `failure_triage/v1`, `change_impact/v1`, `evidence_gap/v1`, `risk_flag/v1`. Full field schemas: `docs/RECIPES.md` in the repository. Raw Choice/Noul are available for bounded semantic decisions. Score is unsupported.
 
 Model/tool advice uses only supplied eligible options and can abstain. A timing label does not establish a flaky test. No-gap-visible does not certify completion. Negative risk does not grant permission. Proposed context reduction does not mean actual token savings.

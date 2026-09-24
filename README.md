@@ -4,7 +4,13 @@
 
 A portable decision sidecar for coding agents. Give Jev the bounded judgments around a task while your main model keeps the plan, the reasoning, and the tools.
 
-**New in 0.5: stateful reflex controllers.** Keep an investigation direction or
+**New in 0.6: practical agent workflows.** Progress monitoring, two-stage skill
+selection, worker-report triage, patch review, handoff checks, memory-conflict advice
+and conditional candidate decisions. Includes explicit host-event adapters,
+recoverable local source artifacts and offline calibration audits.
+See [workflow schemas and integration limits](docs/WORKFLOWS.md).
+
+**Stateful reflex controllers.** Keep an investigation direction or
 semantic signal across changing evidence, damp rapid switching, preserve explicit
 corrections and reject late results. Controllers read recorded Jev answers;
 updating them makes no model call. Available through MCP, JSON CLI, Python and
@@ -154,6 +160,15 @@ The context tool generates the snapshot from the actual supplied packet. It retu
 | `jev_reflex_recipe` | `recipe` | One versioned workflow per batch |
 | `jev_reflex_record_outcome` | `record_outcome` | Immutable typed caller feedback |
 | `jev_reflex_recipe_metrics` | `metrics` | Known/unknown downstream measurements |
+| `jev_reflex_workflow` | `workflow` | Seven bounded multi-signal workflow packs |
+| `jev_reflex_host_event` | `host_event` | Explicit host-event mapping to workflow packs |
+| `jev_reflex_artifact_put` | `artifact_put` | Opt-in local plaintext source retention, no inference |
+| `jev_reflex_artifact_get` | `artifact_get` | Hash-verified source slices, no inference |
+| `jev_reflex_calibration_audit` | `calibration_audit` | Offline grouped evaluation and exposure tracking |
+
+The 18-tool interface was tested from an installed wheel. See the
+[v0.6 verification report](docs/VERIFICATION-v0.6.0.md) for live workflow results,
+including abstentions and the limits of that small diagnostic.
 
 [Recipe schemas](docs/RECIPES.md) · [Security and data handling](SECURITY.md) · [Evaluation](docs/EVALUATION.md) · [Research and related work](docs/RESEARCH.md) · [Verification](docs/VERIFICATION.md)
 

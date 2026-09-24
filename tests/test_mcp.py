@@ -42,12 +42,24 @@ class MCPTests(unittest.TestCase):
                         'jev_reflex_status','jev_reflex_context','jev_reflex_batch','jev_reflex_recipe',
                         'jev_reflex_record_outcome','jev_reflex_recipe_metrics',
                         'jev_reflex_shared','jev_reflex_bulk','jev_reflex_inspect_job','jev_reflex_cancel_job', 'jev_reflex_controller_open',
-                        'jev_reflex_controller_event', 'jev_reflex_controller_inspect'})
+                        'jev_reflex_controller_event', 'jev_reflex_controller_inspect','jev_reflex_workflow','jev_reflex_host_event',
+                        'jev_reflex_artifact_put','jev_reflex_artifact_get','jev_reflex_calibration_audit'})
                     args=dict(project='fixture',task='mcp',request_id='one',snapshot_id='v1',items=[dict(id='relevant',primitive='noul',text='compiler error',question='About software?')])
                     a=await session.call_tool('jev_reflex_batch',args)
                     self.assertFalse(a.isError)
                     data=a.structuredContent or json.loads(a.content[0].text)
                     self.assertEqual(data['results']['relevant']['value'],True)
+                    workflow=await session.call_tool('jev_reflex_host_event',dict(
+                        project='fixture',task='mcp',request_id='handoff',privacy_namespace='public',
+                        event='before_handoff',packet={'original':'Do not deploy','handoff':'Keep local'}))
+                    self.assertFalse(workflow.isError)
+                    wd=workflow.structuredContent or json.loads(workflow.content[0].text)
+                    self.assertEqual(wd['workflow'],'handoff_check/v1')
+                    self.assertFalse(wd['automatic_interception'])
+                    stored=await session.call_tool('jev_reflex_artifact_put',dict(project='fixture',privacy_namespace='local',content='exact text'))
+                    sid=(stored.structuredContent or json.loads(stored.content[0].text))['artifact_id']
+                    fetched=await session.call_tool('jev_reflex_artifact_get',dict(project='fixture',privacy_namespace='local',artifact_id=sid))
+                    self.assertEqual((fetched.structuredContent or json.loads(fetched.content[0].text))['content'],'exact text')
                     controller_key = dict(project='fixture', task='mcp', privacy_namespace='public', controller_id='relevance')
                     opened = await session.call_tool('jev_reflex_controller_open', controller_key | dict(
                         snapshot_id='v1', signal=dict(primitive='noul', question='About software?')))
@@ -97,12 +109,12 @@ class MCPTests(unittest.TestCase):
                     self.assertTrue(invalid.isError)
                     status=await session.call_tool('jev_reflex_status',{})
                     sd=status.structuredContent or json.loads(status.content[0].text)
-                    self.assertEqual(sd['implementation_revision'],'portable-0.5.0')
+                    self.assertEqual(sd['implementation_revision'],'portable-0.6.0')
                     self.assertEqual(sd['minimum_start_interval_s'],0)
                     self.assertEqual(sd['max_inflight'],4)
-                    self.assertEqual(sd['calls_today'],2)
+                    self.assertEqual(sd['calls_today'],3)
                     self.assertEqual(sd['reused_recipe_receipts_today'],1)
-                    self.assertEqual(sd['accounted_microusd'],20)
+                    self.assertEqual(sd['accounted_microusd'],30)
                     self.assertIn('context_triage/v1',sd['recipe_versions'])
                     context_result=await session.call_tool('jev_reflex_context',dict(
                         project='fixture',task='mcp',request_id='context-source',privacy_namespace='fixture',

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.0
+- Add seven bounded workflow packs: progress, progressive skill selection, swarm inbox, patch review, handoff integrity, memory conflict and conditional decisions.
+- Add explicit lifecycle-event mapping through MCP/CLI/Python/pi; no automatic Codex interception claimed.
+- Add opt-in local plaintext artifacts with hash-verified retrieval and no arbitrary paths.
+- Add offline grouped calibration audit with persistent cross-revision holdout exposure.
+- Preserve provider pins, accounting, per-stage replay, uncertainty and host-owned actions.
+
 ## 0.5.0
 - Add durable stateful controllers for reversible Choice routes and Noul signals.
 - Bind exact semantic question/candidate meanings and current source snapshot to recorded results.
