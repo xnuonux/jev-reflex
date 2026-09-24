@@ -12,8 +12,8 @@ class NoRedirect(HTTPRedirectHandler):
 
 
 def main():
-    wire = sys.stdin.buffer.read(16385)
-    if len(wire) > 16384:
+    wire = sys.stdin.buffer.read(60001)
+    if len(wire) > 60000:
         return 1
     profile = sys.argv[1] if len(sys.argv) == 2 else 'openrouter'
     profiles = {'openrouter': ('https://openrouter.ai/api/alpha/decisions', 'OPENROUTER_API_KEY'),
@@ -28,8 +28,8 @@ def main():
                   headers={'Authorization': 'Bearer ' + key, 'Content-Type': 'application/json'})
     try:
         with build_opener(NoRedirect(), ProxyHandler({})).open(req, timeout=15) as response:
-            data = response.read(131073)
-        if len(data) > 131072:
+            data = response.read(4194305)
+        if len(data) > 4194304:
             return 1
         sys.stdout.buffer.write(data)
         return 0

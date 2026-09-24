@@ -1,5 +1,6 @@
 """Portable stdio MCP. No admin tools and no network listener."""
 from typing import Literal
+import asyncio
 from mcp.server.fastmcp import FastMCP
 from mcp.types import ToolAnnotations
 from pydantic import BaseModel, ConfigDict, Field
@@ -12,7 +13,7 @@ class ChoiceItem(BaseModel):
     primitive: Literal['choice']
     text: str = Field(description='Only the selected non-secret text needed for this judgment.')
     question: str = Field(description='One atomic semantic question, not authority or verification.')
-    choices: dict[str, str] = Field(description='2–16 opaque option IDs mapped to short descriptions.')
+    choices: dict[str, str] = Field(description='2–255 opaque option IDs mapped to short descriptions; request size still applies.')
 
 
 class NoulItem(BaseModel):
@@ -21,6 +22,21 @@ class NoulItem(BaseModel):
     primitive: Literal['noul']
     text: str
     question: str = Field(description='One semantic yes/no question; not factual certification.')
+
+
+class SharedChoice(BaseModel):
+    model_config = ConfigDict(extra='forbid', strict=True)
+    id: str
+    primitive: Literal['choice']
+    question: str
+    choices: dict[str, str]
+
+
+class SharedNoul(BaseModel):
+    model_config = ConfigDict(extra='forbid', strict=True)
+    id: str
+    primitive: Literal['noul']
+    question: str
 
 
 RecipeVersion = Literal['context_triage/v1', 'routing_advice/v1', 'evidence_gap/v1', 'risk_flag/v1',
@@ -139,7 +155,7 @@ def make_server(service=None):
     @server.tool(annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, openWorldHint=True))
     def jev_reflex_context(project: str, task: str, request_id: str, privacy_namespace: str,
                            goal: str, chunks: list[SourceChunk], reuse_success: bool = False) -> dict:
-        """Suggest reversible context visibility for 1–8 supplied source chunks.
+        """Suggest reversible context visibility within the host's native batch capacity.
 
         Hashes exact supplied text, pointers and goal into a source snapshot. Required
         pins and uncertain/unavailable results stay visible. Never scans, reads or
@@ -153,14 +169,15 @@ def make_server(service=None):
     @server.tool(annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, openWorldHint=True))
     def jev_reflex_batch(project: str, task: str, request_id: str, snapshot_id: str,
                          items: list[ChoiceItem | NoulItem]) -> dict:
-        """Ask Jev 1–8 atomic semantic questions in one paid batch (16 KiB wire maximum).
+        """Ask independent semantic questions in one native batch, default up to 256.
 
         Use for relevance, triage, candidate selection or semantic routing; never permissions,
         budgets, exact computations, execution decisions or declaring tests/tasks passed.
         project/task are opaque stable accounting labels, NOT authentication. request_id must
         be stable for one attempt: retrying the same ID never redispatches. snapshot_id binds
         the input version; YOU must recheck current relevance before acting on an advisory.
-        Use choice with 2–16 named options or noul for a semantic yes/no judgment. No Score.
+        Use choice with 2–255 options or noul. Size limits can bind before count limits.
+        For larger jobs use bulk; for one context with many questions use shared. No Score.
         No auto-reading of files or chat; only item.text and question/choices reach the provider.
         A valid answer can abstain. On unavailable/paced/busy/budget-exhausted, continue with
         the host agent; do not loop or mint a new ID just to retry. No execution authority is returned.
@@ -173,7 +190,7 @@ def make_server(service=None):
                           privacy_namespace: str, recipe: RecipeVersion,
                           items: list[ContextRecipeItem | RoutingRecipeItem | EvidenceGapRecipeItem | RiskFlagRecipeItem | ToolRecipeItem | FailureRecipeItem | ImpactRecipeItem],
                           independent_items: bool, reuse_success: bool = False) -> dict:
-        """Run 1–8 independent items of one versioned advisory recipe.
+        """Run independent items of one versioned recipe within host batch capacity.
 
         All items must repeat the same privacy namespace. A dependent question belongs in
         a later request. Text and descriptions go only to the pinned Jev provider when
@@ -185,6 +202,60 @@ def make_server(service=None):
                               privacy_namespace, recipe,
                               [item.model_dump() for item in items],
                               independent_items, reuse_success)
+
+    @server.tool(annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, openWorldHint=True))
+    def jev_reflex_shared(project: str, task: str, request_id: str, snapshot_id: str,
+                          privacy_namespace: str, state: str | dict | list,
+                          questions: list[SharedChoice | SharedNoul], independent_questions: bool) -> dict:
+        """Send shared state ONCE with many independent questions in one paid request.
+
+        Every question sees the same state; use a single confidentiality boundary.
+        Questions cannot read one another's answers. Actual dependencies need a later
+        request with fresh explicit state. Defaults: 256 questions, 60k request bytes,
+        30k state plus largest question bytes. Byte guards are not exact token counts.
+        No execution authority. Preserve request_id on replay or uncertain outcomes.
+        """
+        return service.shared(project,task,request_id,snapshot_id,privacy_namespace,state,
+                              [q.model_dump() for q in questions],independent_questions)
+
+    @server.tool(annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, openWorldHint=True))
+    async def jev_reflex_bulk(project: str, task: str, request_id: str, snapshot_id: str,
+                        privacy_namespace: str, items: list[dict], independent_items: bool,
+                        shared_state: str | dict | list | None = None,
+                        recipe: RecipeVersion | None = None, max_batches: int = 32) -> dict:
+        """Advance a job of up to 10,000 explicit items with automatic size-based packing.
+
+        Raw items use batch schemas; with shared_state, use shared question schemas;
+        with recipe, use that recipe's schema. Whole job validates before any inference.
+        Runs in the foreground with a bounded start window and host-owned concurrency.
+        Read next_step and progress; continue-same-input means resubmit IDENTICAL input
+        and request_id later. Never spin or change IDs to retry a failed paid child.
+        Only hashes, IDs, results and progress persist. Results are paginated (inspect_job).
+        No file collection or execution. cancel_job stops new admission, not issued calls.
+        Cancelling this MCP request alone does not cancel the durable job: its bounded
+        worker may still settle or admit work. Use cancel_job and inspect before disconnecting.
+        """
+        return await asyncio.to_thread(service.bulk,project,task,request_id,snapshot_id,privacy_namespace,items,
+                                       independent_items,shared_state,recipe,max_batches)
+
+    @server.tool(annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, openWorldHint=False))
+    def jev_reflex_inspect_job(project: str, task: str, request_id: str,
+                               privacy_namespace: str, offset: int = 0, limit: int = 100) -> dict:
+        """Read durable bulk progress and up to 256 item results; zero provider calls.
+
+        Pending can mean an active or crashed request. Never redispatch it blindly.
+        Follow next_offset to read all results; status ok is not semantic certification.
+        """
+        return service.inspect_job(project,task,request_id,privacy_namespace,offset,limit)
+
+    @server.tool(annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, openWorldHint=False))
+    def jev_reflex_cancel_job(project: str, task: str, request_id: str, privacy_namespace: str) -> dict:
+        """Persist cancellation of an existing bulk job. No new provider call or refund.
+
+        Requests admitted before cancellation may still finish and be accounted.
+        An already admitted provider call cannot be recalled by cancelling this job.
+        """
+        return service.cancel_job(project,task,request_id,privacy_namespace)
 
     @server.tool(annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, openWorldHint=False))
     def jev_reflex_record_outcome(project: str, task: str, privacy_namespace: str,

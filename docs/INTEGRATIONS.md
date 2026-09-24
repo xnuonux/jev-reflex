@@ -37,7 +37,7 @@ pi --extension ./adapters/pi/jev-reflex.ts
 
 The extension registers one `jev_reflex` tool with a fixed method enum and invokes the installed CLI via JSON stdin, with `shell:false`. Keep `bridge.mjs` beside the extension. CLI installation and environment must already exist; extension load never installs dependencies. To make the extension persistent, use pi's supported extension/package mechanism. [pi extension documentation](https://pi.dev/docs/latest/extensions).
 
-Cancellation or the 25-second bridge deadline returns an uncertain outcome and kills the direct child. It does not establish process-tree termination or provider cancellation. Preserve the request ID and ledger; do not retry under a fresh ID. The core transport has its own 20-second provider-child deadline.
+Cancellation or the 60-second bridge deadline returns an uncertain outcome and kills the direct child. It does not establish process-tree termination or provider cancellation. Preserve the request ID and ledger; do not retry under a fresh ID. For job cancellation, call `cancel_job` so it persists in the ledger. The core transport has its own 20-second provider-child deadline. The bridge accepts up to 16 MiB JSON input/output; bulk results are paginated. A killed parent can leave pending children: inspect the same job rather than claiming cancellation of already issued provider requests.
 
 ### Custom agents, including DeepSeek-backed applications
 
@@ -51,14 +51,14 @@ service = Service()  # shared host-owned ledger; no inference at construction
 readiness = invoke(service, "status", {})
 ```
 
-Allowed methods: `status`, `batch`, `recipe`, `context`, `record_outcome`, `metrics`. No `init`, reset, file read, arbitrary command, or credential method. Return the result to the model using your provider's tool-result format. Keep approvals and effect execution in your application's tool layer. [DeepSeek tool calling](https://api-docs.deepseek.com/guides/tool_calls/).
+Allowed methods: `status`, `batch`, `shared`, `bulk`, `inspect_job`, `cancel_job`, `recipe`, `context`, `record_outcome`, `metrics`. No `init`, reset, file read, arbitrary command, or credential method. Return the result to the model using your provider's tool-result format. Keep approvals and effect execution in your application's tool layer. [DeepSeek tool calling](https://api-docs.deepseek.com/guides/tool_calls/).
 
 ## Compatibility claims
 
 | Surface | Qualification in this release |
 | --- | --- |
 | Python core and JSON CLI | Offline runtime tests, including real local processes |
-| MCP | Real official Python SDK stdio round trip, schemas and all six tools; fake inference |
+| MCP | Official Python SDK stdio tests, including shared/bulk/progress/cancel; fake inference; see exact release verification |
 | pi bridge | Real subprocess tests, input/output bounds, cancellation before dispatch, UTF-8 handling and authority envelope |
 | pi host extension | Written against current documented native API; actual pi host session not run |
 | Claude Code / Codex / OpenCode | Current configuration recipes; complete host-specific live workflow not run |

@@ -1,5 +1,6 @@
 {
-  "schema": "jev-reflex-verification/v1",
+  "schema": "jev-reflex-verification/v2",
+  "version": "0.4.0",
   "date_utc": "2026-09-24",
   "qualification": "offline-contract-and-installed-package",
   "environment": {
@@ -11,21 +12,29 @@
   },
   "checks": {
     "python_tests": {
-      "passed": 65,
+      "passed": 91,
       "failed": 0
     },
     "node_bridge_tests": {
-      "passed": 4,
+      "passed": 5,
       "failed": 0
     },
     "wheel_build": true,
     "installed_mcp_roundtrip": true,
-    "mcp_tools": 6,
+    "mcp_tools": 10,
     "negotiated_protocol": "2025-11-25",
     "paid_provider_calls": 0,
-    "native_host_sessions_verified": []
+    "native_host_sessions_verified": [],
+    "synthetic_completed_job_items": 1000,
+    "disabled_cli_job_items": 10000,
+    "pi_carrier_items": 10000
   },
-  "remote_ci": {
+  "independent_review": {
+    "model": "gpt-6-sol",
+    "scope": "bounded-source-and-synthetic-adversarial",
+    "release_blockers_remaining": 0
+  },
+  "historical_remote_ci": {
     "status": "blocked-before-job-execution",
     "run_url": "https://github.com/xnuonux/jev-reflex/actions/runs/35951925271",
     "source_commit": "4b530eaadbec894bb4de428e1a36164195f7eb08",
@@ -34,32 +43,37 @@
     "platforms_qualified": []
   },
   "sources": {
-    "adapters/pi/bridge.mjs": "0fa244cacbebc60d3f5fbf86cbb50024f0437b4c83583d09ebf3e0a662a2496f",
-    "adapters/pi/bridge.test.mjs": "24c25ad323c5508793b331182d0cbdf326177c25a844170fdacbccf5a355d444",
-    "adapters/pi/jev-reflex.ts": "93645e2696ad76c5fd6ed1729e5c3b0c1f3d9ad28ffe3ac1bd1753f62c6a6d52",
-    "pyproject.toml": "5fd63a8cc34067c76a2666fd52722f546d4b6849a382002d4c621a1d96db150f",
-    "src/jev_reflex/__init__.py": "43b3fcbd31ea26e0d85ca4f75e1367a2e7112790a972e338432493c38f49813a",
+    "adapters/pi/bridge.mjs": "77c1f83922b9671a915c9dbf1d2165f3df6716869a0586e71367e4c15440beb0",
+    "adapters/pi/bridge.test.mjs": "99f56ea59616de9aa8432ecf7bf91f878e4e13a16ebd224cac04b97b3d3e803a",
+    "adapters/pi/jev-reflex.ts": "e9a695ca3a13a31ff262d1b25b40a881ce97fda1665478dd7c546ea4ad19c32c",
+    "pyproject.toml": "b01ea3366cea15147218aa67c3b09684519490e2cd9552eabcc031e803071154",
+    "src/jev_reflex/__init__.py": "c2c009cf121c00ca8de92f1bb810dd14654cdd925fc1ea086323230c2e7b0f85",
     "src/jev_reflex/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
-    "src/jev_reflex/api.py": "8942255293c773d9da042ba1fc007a7fb2983cacbdd736d13470482a38787400",
-    "src/jev_reflex/cli.py": "0d9c416e514cda0facba6090eadf6921694239357d22ccdb544c64226c15ebdd",
-    "src/jev_reflex/context.py": "7765eda194d998ba977942f903bf45ce8f362a640f1f3f55977f802664aceeb1",
+    "src/jev_reflex/api.py": "7f4674828d50f424ea62417d86db13fe4aea48d576cda86fbdb1e265717836a5",
+    "src/jev_reflex/bulk.py": "e656934ec6f9028ed2fab7f62f23aa21066e65aadbed250b2bc6fce2ba40a192",
+    "src/jev_reflex/capacity.py": "aea22ce213ac51f908d41856754b2e84c8101f0e08f44aecd3e5bc29ce38d2ba",
+    "src/jev_reflex/cli.py": "929f064a3f4bc4ae3c3de3afa581d2b6af65e81e9f17a0f698ca79560a93ca6d",
+    "src/jev_reflex/context.py": "799bcfe49678ad9999085517d2cdbd0a09b8f7ed892942ba35ba0ae72f3cba70",
     "src/jev_reflex/demo.py": "fbc5be7981fc1a6ccb7363b1d825b5b63076cc1006e055c7fa5bb8933811f85b",
     "src/jev_reflex/evaluation.py": "6b98305c5a8422bb0119c106e274da9b28dd3a5276d45bff0ae192d9a7fb457c",
     "src/jev_reflex/providers.py": "02c44d437e7b10e9134f11f1afe4ed6d2d57e1acf025e2b2e16196a6e76aa917",
-    "src/jev_reflex/recipes.py": "977948e707e8aa8226ddd323691729ac511b7cd0f83e16f7aee1c70c3afa0681",
-    "src/jev_reflex/reflex.py": "96a22666aca74709fbd2febdc68a54dea9649a217b1a3df6e37f617ffe27b140",
-    "src/jev_reflex/server.py": "f26c663d7d5d1c515764fea742cb6f7db2266c4129df7d53623288cf0220030d",
-    "src/jev_reflex/transport.py": "0c47cce1038d0e4c18c525b2cbfeacfec87881b54c66d97a25477275170c90ad",
+    "src/jev_reflex/recipes.py": "a1d4b2b11344f05bea85b66bade75cdfb5fd9082829d9378a1f3ca20b44a9528",
+    "src/jev_reflex/reflex.py": "8aa6c6f5d8fe5a9cc432fdbe8a7c60a5287879922f3b36828bfc61e740ead71a",
+    "src/jev_reflex/server.py": "3483d028bd4dd2a55780a539267e5becfd2f8d50444dd4ae876d99bc12fde190",
+    "src/jev_reflex/shadow.py": "492bc0c6ea8513c0b115932153d7362c919b8d572dac8794e3f0e4cf4c8b651f",
+    "src/jev_reflex/transport.py": "0aac1ad9a86cf97518d9e204f9368b3f4620a1f06be1231c9aa3aee1b7ac21ea",
+    "tests/test_bulk.py": "5dedaf0f0de2e276e6abce0b4a8cc53e5d4544a76ef626c2327ca2873cb9c5bf",
     "tests/test_coding_recipes.py": "12c60f73ff22ba1a20f1ccf7302e69922cfee467c15970ecc2c8e436f93a6de5",
     "tests/test_context.py": "356bbf8d2155d4fbcd481d9c3240085e5defceddb9d2e1bb14f9b01de18559e3",
     "tests/test_evaluation.py": "5740003ee52a132963b42b5c9e9fde3012c70e28259892482a14d3448419628c",
-    "tests/test_mcp.py": "c1158ddb92e3ff35408a1067d9074d9a41a97aadca21e7379d2121586ffec9cf",
+    "tests/test_mcp.py": "87c0823f42c43a5f78c3a99a44cb666b024a221c8dfb5af46d91687797a58569",
     "tests/test_providers.py": "66cb29a0c6befe4670bc182e07c68a3cdbda38f3d33c135d15ffafc3477240bf",
-    "tests/test_public_cli.py": "3ed8c5f0f8e1b717ba5e90cc11c53512620127df52b72910cf605b52a83f1f80",
+    "tests/test_public_cli.py": "dce7a0e4bfba0184d127892c8a03e1655cec7a1dde7f31dff49fdf5d33aace22",
     "tests/test_recipes.py": "efa98c51fe05af3a44ad209dfc56138330613677157cbc2a945d7882129013a2",
     "tests/test_reflex.py": "9966c18229d59bd38385635cf8e193fc5ed817ab6705ba7be0ec25e34258d0d1",
-    "tests/test_transport.py": "8f611b7079fec7620048ac2421377afde23fbcc37d4637252f54dc83bd322f49",
-    "tools/verify_installed.py": "9ef26d3990dd6bdd5d355d8396381aaf74f8e3437e92e2a547b12938bd328341"
+    "tests/test_shadow.py": "1581fcf28d4a13df4cd2a96d2e5ed60b6a56ddf3cc5438d604fc87188e3a6040",
+    "tests/test_transport.py": "c2bb63c7d3f36e3af85975f38e985d48b9ef5c47b03d5b4129b33dd210ad4a15",
+    "tools/verify_installed.py": "09de21a0d51d397b4b24df8b61408b25138ecdde9dce86b096fe272ee9f71c15"
   },
-  "source_normalization": "UTF-8/LF; Python ASTs unchanged by publication whitespace normalization"
+  "source_normalization": "SHA-256 of exact working-tree UTF-8 source bytes; LF repository attributes"
 }

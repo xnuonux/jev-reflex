@@ -1,0 +1,14 @@
+{
+  "project": "helpdesk",
+  "task": "ticket-triage",
+  "request_id": "ticket-001",
+  "snapshot_id": "ticket-revision-1",
+  "privacy_namespace": "public-demo",
+  "state": {"ticket": "The export button stopped working after an update. Clicking Export produces an empty file. Refreshing did not help."},
+  "independent_questions": true,
+  "questions": [
+    {"id": "category", "primitive": "choice", "question": "Which topic best fits this ticket?", "choices": {"bug": "A software malfunction", "billing": "Payment or account billing", "uncertain": "Insufficient information"}},
+    {"id": "repro", "primitive": "noul", "question": "Does the ticket describe steps that could help reproduce the problem?"},
+    {"id": "refund", "primitive": "noul", "question": "Does the writer explicitly ask for a refund?"}
+  ]
+}

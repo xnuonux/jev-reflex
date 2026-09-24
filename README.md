@@ -26,13 +26,15 @@ Seven versioned recipes, plus raw **Choice** and **Noul** batches. Uncertainty i
 
 Plenty of projects expose Jev as a tool. Reflex concentrates on what happens **around the decision**:
 
-- **One native batch, up to eight questions.** No hidden per-item request fan-out.
+- **Shared context, many questions.** Send one state packet once. Defaults allow up to 256 independent questions per request, constrained by size rather than an eight-question ceiling.
+- **Bulk jobs up to 10,000 items.** Automatic packing, bounded concurrency, durable progress, cancellation, and paginated results. Raw items, shared-state questions and recipes use the same accounting.
 - **Durable accounting before dispatch.** Multiple local processes share a SQLite ledger and atomically reserve against host limits.
 - **Duplicate-call protection.** Replaying an operation ID never starts it again. Changed inputs under the same ID refuse.
 - **Exact successful-result reuse.** Opt in per recipe; source, input, recipe, provider/model and thresholds must match. Each reuse has a new receipt pointing to its origin.
 - **Source-bound context plans.** Hashes the exact supplied text, pointers and goal. Required evidence stays visible even if Jev calls it irrelevant. No file scanning or automatic compaction.
 - **Inspectable evidence.** Full bounded distributions, model/route, elapsed time, known token usage, reported versus conservatively reserved cost, and caller-reported downstream outcomes.
 - **No silent retries or provider fallback.** Uncertain attempts remain visible and accounted.
+- **Offline shadow evaluation.** Per-route confusion matrices, precision/recall, abstentions and confidence bins. Measure correctness separately from valid output and speed.
 
 This is an engineering contract, not a promise of universal speed or accuracy gains. The [evaluation guide](docs/EVALUATION.md) explains how to measure the whole workflow.
 
@@ -135,11 +137,40 @@ The context tool generates the snapshot from the actual supplied packet. It retu
 | `jev_reflex_status` | `status` | Local readiness and accounting |
 | `jev_reflex_context` | `context` | Source-bound reversible context plan |
 | `jev_reflex_batch` | `batch` | Typed Choice/Noul questions |
+| `jev_reflex_shared` | `shared` | One shared state, many independent questions |
+| `jev_reflex_bulk` | `bulk` | Pack and advance up to 10,000 explicit items |
+| `jev_reflex_inspect_job` | `inspect_job` | Durable progress and paginated results, no inference |
+| `jev_reflex_cancel_job` | `cancel_job` | Stop further job admission; issued calls still settle |
 | `jev_reflex_recipe` | `recipe` | One versioned workflow per batch |
 | `jev_reflex_record_outcome` | `record_outcome` | Immutable typed caller feedback |
 | `jev_reflex_recipe_metrics` | `metrics` | Known/unknown downstream measurements |
 
 [Recipe schemas](docs/RECIPES.md) · [Security and data handling](SECURITY.md) · [Evaluation](docs/EVALUATION.md) · [Research and related work](docs/RESEARCH.md) · [Verification](docs/VERIFICATION.md)
+
+## Shared state and bulk work
+
+```sh
+jev-reflex call shared < examples/shared.json
+jev-reflex shadow-report < examples/shadow.json
+```
+
+Use `shared` when several questions inspect the same document: context appears once
+in the request, rather than repeated inside each item. Questions evaluate independently.
+Speculative questions can share a call if the host can discard irrelevant answers;
+an answer-dependent question needs a later step with explicit updated state.
+
+For a large job, pass raw items, shared questions, or one recipe's items to `bulk`.
+It validates every item before inference, partitions by host capacity, then advances
+the job during a bounded foreground run. Inspect `next_step`: `continue-same-input`
+requires resubmitting the identical job later; paid children are never retried.
+No background worker is installed. Inspect results in pages without sending source
+text again. [Schemas, lifecycle and examples](docs/BULK.md).
+
+Host-owned `capacity.json` configures count/concurrency/rate limits. Defaults: 256
+questions per request, four concurrent calls, 60,000 request bytes and 30,000 bytes
+for state plus the longest question. These byte guards are conservative packing
+heuristics, **not exact token counts or a promise of provider acceptance**. Count
+alone never overrides size, disclosure, daily spending or provider limits.
 
 ## Development
 

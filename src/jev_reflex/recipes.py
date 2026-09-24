@@ -46,7 +46,7 @@ ALLOWED_OUTCOME_KEYS = {
 }
 
 
-def prepare(recipe, privacy_namespace, independent_items, items):
+def prepare(recipe, privacy_namespace, independent_items, items, max_items=256):
     """Validate a single confidentiality batch and return provider primitives.
 
     Imported lazily so the generic reflex module can load independently during a
@@ -57,7 +57,7 @@ def prepare(recipe, privacy_namespace, independent_items, items):
     require(recipe in RECIPE_VERSIONS, 'recipe-version')
     identifier(privacy_namespace)
     require(type(independent_items) is bool and independent_items, 'dependent-items-separate-requests')
-    require(type(items) is list and 1 <= len(items) <= 8, 'item-count')
+    require(type(items) is list and 1 <= len(items) <= max_items, 'item-count')
     expanded, seen = [], set()
     for item in items:
         require(type(item) is dict, 'recipe-item')

@@ -1,13 +1,13 @@
 import { spawn } from 'node:child_process';
 import { StringDecoder } from 'node:string_decoder';
 
-const METHODS = new Set(['status', 'batch', 'recipe', 'context', 'record_outcome', 'metrics']);
+const METHODS = new Set(['status', 'batch', 'shared', 'bulk', 'inspect_job', 'cancel_job', 'recipe', 'context', 'record_outcome', 'metrics']);
 
 // Host-owned command configuration only. Never take command/args from a model tool argument.
-export async function callReflex(method, args, { command = 'jev-reflex', prefixArgs = [], signal, timeoutMs = 25000 } = {}) {
+export async function callReflex(method, args, { command = 'jev-reflex', prefixArgs = [], signal, timeoutMs = 60000 } = {}) {
   if (!METHODS.has(method) || !args || typeof args !== 'object' || Array.isArray(args)) throw new Error('jev-reflex:arguments');
   const wire = JSON.stringify(args);
-  if (Buffer.byteLength(wire) > 32768) throw new Error('jev-reflex:arguments-size');
+  if (Buffer.byteLength(wire) > 16777216) throw new Error('jev-reflex:arguments-size');
   if (signal?.aborted) throw new Error('jev-reflex:cancelled-before-dispatch');
   return new Promise((resolve, reject) => {
     const child = spawn(command, [...prefixArgs, 'call', method], { shell: false, windowsHide: true, stdio: ['pipe','pipe','pipe'] });
@@ -28,7 +28,7 @@ export async function callReflex(method, args, { command = 'jev-reflex', prefixA
     child.stderr.resume(); // Never echo subprocess/provider prose or credentials.
     child.stdout.on('data', chunk => {
       bytes += chunk.length;
-      if (bytes > 131072) return finish('jev-reflex:response-size');
+      if (bytes > 16777216) return finish('jev-reflex:response-size');
       output += decoder.write(chunk);
     });
     child.on('close', code => {

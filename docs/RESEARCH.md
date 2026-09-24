@@ -22,7 +22,11 @@ The [official Python SDK](https://github.com/typesafe-ai/typesafe-sdk-python) an
 
 Reflex's focus is shared durable accounting, stable operation identity, exact settled-result reuse, reversible source-bound context selection, and typed downstream feedback. These features are testable engineering differences, not evidence that it outperforms those projects.
 
-The motivating [Mika X post](https://x.com/mika_systems/status/2101686148338798610) was not accessible during this research. No content, linked implementation or performance figure is attributed to it. Third-party profile snippets were not used as implementation evidence.
+The motivating [Mika article, "Jev: The 9-Step Blueprint for Building a Faster Decision Brain for AI Agents"](https://x.com/mika_systems/status/2101686148338798610) was inaccessible during v0.3 authoring and subsequently read in full through the owner's open browser for v0.4. Its useful lessons: narrow answer contracts, independent questions over shared state, confidence distinct from correctness, deterministic composition, explicit eligible actions, re-observation after effects, whole-workflow costs, and task-specific shadow evaluation. Its demos span feed filtering, UI selection, voice actions and lead triage; those are possibilities, not integrations delivered here.
+
+v0.4 applies those lessons through shared requests, resumable bulk packing, host-owned admission and offline confusion matrices. The article's cited 13-question performance comparison and third-party demo numbers were not reproduced here; no speedup or cost reduction is attributed to Reflex from them. Score and autonomous action loops remain outside this release's qualified contract.
+
+Current [TypeSafe limits](https://docs.typesafe.ai/models) list 64k tokens per request, 32k state-plus-longest-question, 1,200 requests/minute and 250,000 tokens/second, with an explicit warning that rates change. Native count and concurrency are different quantities. Our UTF-8 byte ceilings are a conservative packing heuristic, not those token counts. [Speculative fan-out](https://docs.typesafe.ai/patterns/fan-out) explains when independent conditional questions can share a request; genuine answer dependencies still require later calls.
 
 ## Next useful work
 

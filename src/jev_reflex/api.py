@@ -6,6 +6,7 @@ METHODS = {
     'status': 'status', 'batch': 'judge', 'recipe': 'recipe',
     'record_outcome': 'record_outcome', 'metrics': 'recipe_metrics',
     'context': 'context',
+    'shared': 'shared', 'bulk': 'bulk', 'inspect_job': 'inspect_job', 'cancel_job': 'cancel_job',
 }
 
 

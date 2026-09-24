@@ -33,7 +33,7 @@ async def verify():
             async with ClientSession(read,write) as session:
                 initialized=await session.initialize()
                 tools=await session.list_tools()
-                assert len(tools.tools)==6
+                assert len(tools.tools)==10
                 response=await session.call_tool('jev_reflex_status',{})
                 status=response.structuredContent or json.loads(response.content[0].text)
                 assert not response.isError and status['calls_today']==0
@@ -45,7 +45,20 @@ async def verify():
                 packet=context.structuredContent or json.loads(context.content[0].text)
                 assert not context.isError and packet['context_plan'][0]['visibility']=='show_now'
                 assert packet['may_execute'] is False
-        print(json.dumps(dict(installed_package=True,outside_source_cwd=True,mcp_tools=6,
+                shared=await session.call_tool('jev_reflex_shared',dict(project='install',task='check',
+                    request_id='shared',snapshot_id='v1',privacy_namespace='synthetic',state='A public fixture',
+                    independent_questions=True,questions=[dict(id=f'q{i}',primitive='noul',question='Relevant?') for i in range(13)]))
+                assert not shared.isError and (shared.structuredContent or json.loads(shared.content[0].text))['reason']=='disabled'
+                key=dict(project='install',task='check',request_id='bulk',privacy_namespace='synthetic')
+                bulk=await session.call_tool('jev_reflex_bulk',dict(**key,snapshot_id='v1',independent_items=True,
+                    items=[dict(id=f'i{i}',primitive='noul',text='Public fixture',question='Relevant?') for i in range(1000)]))
+                assert not bulk.isError and (bulk.structuredContent or json.loads(bulk.content[0].text))['total_items']==1000
+                assert (bulk.structuredContent or json.loads(bulk.content[0].text))['model_calls_this_invocation']==0
+                cancelled=await session.call_tool('jev_reflex_cancel_job',key)
+                assert not cancelled.isError and (cancelled.structuredContent or json.loads(cancelled.content[0].text))['cancelled']
+                page=await session.call_tool('jev_reflex_inspect_job',key | dict(offset=900))
+                assert not page.isError and len((page.structuredContent or json.loads(page.content[0].text))['items'])==100
+        print(json.dumps(dict(installed_package=True,outside_source_cwd=True,mcp_tools=10,
                               negotiated_protocol=initialized.protocolVersion,
                               paid_provider_calls=0,demo_synthetic_calls=1)))
 

@@ -19,7 +19,19 @@ test('bridge rejects admin dispatch, cancelled starts and oversized input',async
   await assert.rejects(callReflex('init',{}),/arguments/);
   const controller=new AbortController();controller.abort();
   await assert.rejects(callReflex('status',{}, {signal:controller.signal}),/cancelled-before/);
-  await assert.rejects(callReflex('batch',{text:'x'.repeat(32769)}),/arguments-size/);
+  await assert.rejects(callReflex('batch',{text:'x'.repeat(16777217)}),/arguments-size/);
+});
+
+test('bulk bridge carries large jobs and supports progress and cancellation methods',async()=>{
+  const dir=await mkdtemp(join(tmpdir(),'jev-reflex-bulk-'));
+  try {
+    const file=join(dir,'bulk.cjs');
+    await writeFile(file,`let d='';process.stdin.on('data',x=>d+=x);process.stdin.on('end',()=>console.log(JSON.stringify({status:'ok',authority:'none',may_execute:false,count:JSON.parse(d).items?.length,method:process.argv.at(-1)})));`);
+    const options={command:process.execPath,prefixArgs:[file]};
+    const r=await callReflex('bulk',{items:Array.from({length:10000},(_,i)=>({id:'i'+i,text:'public fixture'}))},options);
+    assert.equal(r.count,10000);
+    for (const method of ['shared','inspect_job','cancel_job']) assert.equal((await callReflex(method,{},options)).method,method);
+  } finally { await rm(dir,{recursive:true,force:true}); }
 });
 
 test('bridge preserves UTF-8 split across child output chunks',async()=>{

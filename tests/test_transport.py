@@ -13,6 +13,17 @@ from jev_reflex.providers import OPENROUTER, TYPESAFE
 
 
 class TransportTests(unittest.TestCase):
+    def test_transport_accepts_above_old_limit_and_refuses_before_network_above_ceiling(self):
+        for size, expected in ((16385,0),(60000,0),(60001,1)):
+            with patch.object(transport.sys,'stdin',SimpleNamespace(buffer=io.BytesIO(b'x'*size))), \
+                 patch.object(transport.sys,'stdout',SimpleNamespace(buffer=io.BytesIO())), \
+                 patch.object(transport.sys,'argv',['transport.py','openrouter']), \
+                 patch.dict(transport.os.environ,{'OPENROUTER_API_KEY':'fixture-key'},clear=True), \
+                 patch.object(transport,'build_opener') as opener:
+                opener.return_value.open.return_value=io.BytesIO(b'{}')
+                self.assertEqual(transport.main(),expected)
+                self.assertEqual(opener.called,expected==0)
+
     def test_subprocess_route_map_matches_profile_and_uses_only_selected_key(self):
         for profile in (OPENROUTER,TYPESAFE):
             output=io.BytesIO()

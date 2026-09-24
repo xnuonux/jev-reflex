@@ -82,6 +82,23 @@ class PublicCLI(unittest.TestCase):
             self.assertEqual(value['calls_today'], 0)
             self.assertEqual(value['status'], 'disabled-or-unavailable')
 
+    def test_cli_large_job_does_not_hit_old_32k_limit(self):
+        with tempfile.TemporaryDirectory() as d:
+            key=dict(project='fixture',task='cli',request_id='job',privacy_namespace='public')
+            payload=dict(**key,snapshot_id='v1',independent_items=True,
+                         items=[dict(id=f'i{x}',primitive='noul',text='public fixture',question='Relevant?') for x in range(10000)])
+            raw=json.dumps(payload)
+            self.assertGreater(len(raw),32768)
+            r=self.run_cli(d,'call','bulk',data=raw)
+            self.assertEqual(r.returncode,0,r.stderr)
+            value=json.loads(r.stdout)
+            self.assertEqual(value['total_items'],10000)
+            self.assertEqual(value['model_calls_this_invocation'],0)
+            r=self.run_cli(d,'call','inspect_job',data=json.dumps(key | dict(offset=9900)))
+            self.assertEqual(len(json.loads(r.stdout)['items']),100)
+            r=self.run_cli(d,'call','cancel_job',data=json.dumps(key))
+            self.assertTrue(json.loads(r.stdout)['cancelled'])
+
 
 if __name__ == '__main__':
     unittest.main()

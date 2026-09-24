@@ -8,6 +8,7 @@ import sqlite3
 import sys
 from .api import METHODS, invoke
 from .reflex import DEFAULT_POLICY, ROOT, ReflexError, Service, require, strict_json
+from .capacity import MAX_JOB_BYTES
 
 
 def emit(value):
@@ -48,13 +49,14 @@ def initialize(root, daily_usd, enabled):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description='Jev Reflex: small decisions, host-owned actions.')
-    parser.add_argument('--version', action='version', version='jev-reflex 0.3.0')
+    parser.add_argument('--version', action='version', version='jev-reflex 0.4.0')
     sub = parser.add_subparsers(dest='command', required=True)
     sub.add_parser('serve', help='Start stdio MCP; install the [mcp] extra.')
     sub.add_parser('doctor', help='Local readiness/accounting only; no inference.')
     sub.add_parser('demo', help='Offline synthetic replay, reuse and context-pin demonstration.')
     sub.add_parser('catalog', help='List versioned recipes and their boundaries.')
     sub.add_parser('evaluate', help='Compare paired workflow measurements from JSON stdin; no inference.')
+    sub.add_parser('shadow-report', help='Offline confusion matrices for labelled semantic decisions.')
     call = sub.add_parser('call', help='Call one operation with JSON arguments on stdin.')
     call.add_argument('method', choices=list(METHODS))
     init = sub.add_parser('init', help='Create a host-owned policy; never overwrite.')
@@ -86,9 +88,14 @@ def main(argv=None):
             data = sys.stdin.buffer.read(8388609)
             require(len(data) <= 8388608, 'evaluation-size')
             emit(compare(strict_json(data.decode('utf-8'))))
+        elif args.command == 'shadow-report':
+            from .shadow import report
+            data = sys.stdin.buffer.read(MAX_JOB_BYTES+1)
+            require(len(data) <= MAX_JOB_BYTES, 'evaluation-size')
+            emit(report(strict_json(data.decode('utf-8'))))
         elif args.command == 'call':
-            data = sys.stdin.buffer.read(32769)
-            require(len(data) <= 32768, 'arguments-size')
+            data = sys.stdin.buffer.read(MAX_JOB_BYTES+1)
+            require(len(data) <= MAX_JOB_BYTES, 'arguments-size')
             arguments = strict_json(data.decode('utf-8'))
             emit(invoke(Service(), args.method, arguments))
         else:

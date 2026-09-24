@@ -1,0 +1,10 @@
+{
+  "schema": "shadow/v1",
+  "labels": ["bug", "billing"],
+  "cases": [
+    {"id": "fixture-1", "route": "ticket", "truth": "bug", "prediction": "bug", "confidence": 0.99},
+    {"id": "fixture-2", "route": "ticket", "truth": "billing", "prediction": "bug", "confidence": 0.98},
+    {"id": "fixture-3", "route": "ticket", "truth": "bug", "prediction": null, "confidence": null},
+    {"id": "fixture-4", "route": "ticket", "truth": null, "prediction": "billing", "confidence": 0.91}
+  ]
+}

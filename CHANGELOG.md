@@ -1,6 +1,16 @@
 # Changelog
 
-## 0.3.0 — first public source release
+## 0.4.0
+- Replace the eight-question limit with configurable native capacity and byte-based packing.
+- Add one-copy shared-state questions and resumable bulk jobs up to 10,000 items.
+- Add durable cancellation, pagination, route-specific concurrency/rate admission and exact child replay.
+- Preserve settled native replay when policy is disabled, credentials disappear or capacity is tightened.
+- Expand Choice to 255 declared options within request-size limits.
+- Expose shared/bulk/inspect/cancel through Python, CLI, MCP and pi, updating transport boundaries.
+- Add offline shadow confusion matrices, precision/recall and confidence-bin reports.
+- Apply the Mika article's shared-context and evaluation lessons without importing its performance claims.
+
+## 0.3.0 â€” first public source release
 
 - Portable Python package, stdio MCP, JSON CLI and Python operation dispatcher.
 - Direct TypeSafe and OpenRouter routes with separate response and accounting contracts.

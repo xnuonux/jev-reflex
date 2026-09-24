@@ -27,7 +27,33 @@ The three judgments are booleans or null. Measurements are non-negative bounded 
 
 The report checks **structural pairing of caller reports**. It does not receive source bytes or independently authenticate a declared hash, verify an outcome, or establish whether a run was synthetic. Output states `source_bytes_verified:false`, `independent_verification:false`, `synthetic_label_source:"caller"`, and `causal_claim:false`. Retain raw run records and source manifests separately if you need auditable evidence.
 
-The supplied example is deliberately synthetic: a candidate can become faster while becoming less correct. No measured performance uplift or benchmark victory is claimed for v0.3.0.
+The supplied example is deliberately synthetic: a candidate can become faster while becoming less correct. No measured performance uplift or benchmark victory is claimed for this release.
+
+## Labelled shadow decisions
+
+```sh
+jev-reflex shadow-report < examples/shadow.json
+```
+
+This offline report accepts `{schema:"shadow/v1", labels:[...], cases:[...]}`.
+Each case has exactly `id`, `route`, `truth`, `prediction`, `confidence`.
+Truth and prediction are declared label IDs or null. Null prediction means
+abstention, null truth means unknown ground truth, and null confidence means
+unreported confidence. Confidence is a finite number in [0,1], not a correctness
+certificate. When prediction is null, its confidence is excluded from bins.
+
+Results are separated by caller-labelled route: confusion matrix (truth rows,
+prediction columns), support, precision, recall, abstentions, coverage, selective
+accuracy and confidence-bin accuracy. Recall counts abstentions as missed true
+cases; selective accuracy measures only predictions with known truth. Unknown
+truth and unknown confidence counts stay visible. The supplied fixture includes
+a confident wrong answer, an abstention and unknown truth so that a tiny valid
+report cannot be mistaken for proof of reliability. No threshold changes occur.
+
+Labels are caller reports, not authenticated independent ground truth. Use
+representative held-out specimens, independent labels and adversarial state
+injection examples before selecting operational thresholds. Avoid broad accuracy
+claims from aggregate routes or training cases reused as evaluation cases.
 
 ## Recipe feedback versus experiments
 

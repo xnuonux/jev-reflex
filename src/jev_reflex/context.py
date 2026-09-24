@@ -1,12 +1,13 @@
 """Source-bound context planning without reading, deleting, or uploading files implicitly."""
 import hashlib
 from .reflex import digest, identifier, require, text
+from .capacity import HARD_CAPACITY
 
 
 def plan(service, project, task, request_id, privacy_namespace, goal, chunks, reuse_success=False):
     identifier(privacy_namespace)
     text(goal, 1000)
-    require(type(chunks) is list and 1 <= len(chunks) <= 8, 'chunk-count')
+    require(type(chunks) is list and 1 <= len(chunks) <= HARD_CAPACITY['max_questions'], 'chunk-count')
     normalized, seen = [], set()
     for chunk in chunks:
         require(type(chunk) is dict and set(chunk) == {'id','text','source_ref','mandatory_pinned'}, 'chunk-fields')

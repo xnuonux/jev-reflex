@@ -13,7 +13,7 @@ FUNCTION = {
             'required':['project','task','request_id','privacy_namespace','goal','chunks'],
             'properties': {
                 **{k:{'type':'string'} for k in ['project','task','request_id','privacy_namespace','goal']},
-                'chunks': {'type':'array','minItems':1,'maxItems':8,'items':{
+                'chunks': {'type':'array','minItems':1,'maxItems':4096,'items':{
                     'type':'object','additionalProperties':False,
                     'required':['id','text','source_ref','mandatory_pinned'],
                     'properties':{**{k:{'type':'string'} for k in ['id','text','source_ref']},
