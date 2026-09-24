@@ -147,6 +147,52 @@ def make_server(service=None):
         'On abstain/unavailable continue reasoning yourself; no polling or retry loop. '
         'Recipes are opt-in and never change a model, delete context, or certify completion.'))
 
+    @server.tool(annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, openWorldHint=False))
+    def jev_reflex_controller_open(project: str, task: str, privacy_namespace: str,
+                                   controller_id: str, snapshot_id: str,
+                                   signal: dict,
+                                   policy: dict | None = None) -> dict:
+        """Create a durable advisory stream; zero inference, permissions or actions.
+
+        Policy defaults: confirmations=2, max_hold_sources=2, override_sources=4.
+        signal is {primitive:'choice',question,choices:{id:description}} or
+        {primitive:'noul',question}. Exact question and descriptions are bound. Use one
+        controller for one stable semantic question. Exact open replay reads current
+        state. Bind source changes before inference. See docs/CONTROLLERS.md.
+        """
+        from .controllers import open_controller
+        return open_controller(service, project, task, privacy_namespace, controller_id,
+                               snapshot_id, signal, policy)
+
+    @server.tool(annotations=ToolAnnotations(readOnlyHint=False, destructiveHint=False, openWorldHint=False))
+    def jev_reflex_controller_event(project: str, task: str, privacy_namespace: str,
+                                    controller_id: str, event_id: str,
+                                    expected_revision: int, event: dict) -> dict:
+        """Advance a controller using recorded evidence or explicit caller controls.
+
+        event exact shapes: {kind:'bind',snapshot_id}; {kind:'observe',receipt:
+        {kind:'batch'|'shared',request_id,item_id}}; {kind:'override',selected_id};
+        {kind:'release'|'pause'|'resume'|'stop'}. Never accepts probabilities.
+        Revisions serialize updates. Pause/stop bypass revision conflict and clear
+        hints immediately on commit. Stop is permanent; resume needs fresh revision.
+        One vote per source snapshot; stale results and source-name reuse refuse.
+        An override is caller input, not authenticated human approval. No inference.
+        """
+        from .controllers import event as advance
+        return advance(service, project, task, privacy_namespace, controller_id,
+                       event_id, expected_revision, event)
+
+    @server.tool(annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, openWorldHint=False))
+    def jev_reflex_controller_inspect(project: str, task: str, privacy_namespace: str,
+                                      controller_id: str) -> dict:
+        """Read current advisory stream; does not inspect files or prove freshness.
+
+        supported_snapshot may be older than snapshot_id. Always recheck relevance.
+        Paused/stopped streams have no hint. No model call or execution authority.
+        """
+        from .controllers import inspect
+        return inspect(service, project, task, privacy_namespace, controller_id)
+
     @server.tool(annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, openWorldHint=False))
     def jev_reflex_status() -> dict:
         """Read shared UTC daily budget, credential availability and model pin. No inference or secret values."""

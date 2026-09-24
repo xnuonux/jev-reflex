@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.0
+- Add durable stateful controllers for reversible Choice routes and Noul signals.
+- Bind exact semantic question/candidate meanings and current source snapshot to recorded results.
+- Add distinct-source confirmation, bounded held hints, explicit corrections and immediate stream pause/stop.
+- Serialize revisions, preserve current-state replay and reject source-name reuse and duplicate votes.
+- Preserve supporting/confirmation receipt provenance separately from the latest observation.
+- Label injected-transport evidence and expose controller tools through MCP, JSON CLI, Python and pi.
+- Add an offline stateful/stateless comparison demo; no provider thresholds, spending or authority expanded.
+
 ## 0.4.0
 - Replace the eight-question limit with configurable native capacity and byte-based packing.
 - Add one-copy shared-state questions and resumable bulk jobs up to 10,000 items.

@@ -27,13 +27,33 @@ async def verify():
         assert result['synthetic'] and result['provider_calls']==1
         assert result['replay_calls']==0 and result['reuse_calls']==0
         assert not (root/'state').exists()
+        controller_demo=subprocess.run([sys.executable,'-m','jev_reflex','controller-demo'],cwd=root,env=env,
+                                       capture_output=True,text=True,timeout=15,check=True)
+        demo_report=json.loads(controller_demo.stdout)
+        assert demo_report['paid_calls']==0 and demo_report['controller_switches']==1
+        assert demo_report['stateless_switches']==5 and demo_report['stopped_hint'] is None
         params=StdioServerParameters(command=sys.executable,args=['-m','jev_reflex','serve'],
                                     env=env,cwd=str(root))
         async with stdio_client(params) as (read,write):
             async with ClientSession(read,write) as session:
                 initialized=await session.initialize()
                 tools=await session.list_tools()
-                assert len(tools.tools)==10
+                assert len(tools.tools)==13
+                controller_key=dict(project='install',task='check',privacy_namespace='synthetic',controller_id='route')
+                opened=await session.call_tool('jev_reflex_controller_open', controller_key | dict(
+                    snapshot_id='v1', signal=dict(primitive='noul',question='Relevant?')))
+                assert not opened.isError
+                corrected=await session.call_tool('jev_reflex_controller_event', controller_key | dict(
+                    event_id='correct',expected_revision=0,event=dict(kind='override',selected_id='false')))
+                assert not corrected.isError
+                assert (corrected.structuredContent or json.loads(corrected.content[0].text))['controller']['selected_id']=='false'
+                stopped=await session.call_tool('jev_reflex_controller_event', controller_key | dict(
+                    event_id='stop',expected_revision=0,event=dict(kind='stop')))
+                assert not stopped.isError
+                inspected=await session.call_tool('jev_reflex_controller_inspect',controller_key)
+                assert not inspected.isError
+                controller=(inspected.structuredContent or json.loads(inspected.content[0].text))['controller']
+                assert controller['phase']=='stopped' and controller['selected_id'] is None
                 response=await session.call_tool('jev_reflex_status',{})
                 status=response.structuredContent or json.loads(response.content[0].text)
                 assert not response.isError and status['calls_today']==0
@@ -58,7 +78,8 @@ async def verify():
                 assert not cancelled.isError and (cancelled.structuredContent or json.loads(cancelled.content[0].text))['cancelled']
                 page=await session.call_tool('jev_reflex_inspect_job',key | dict(offset=900))
                 assert not page.isError and len((page.structuredContent or json.loads(page.content[0].text))['items'])==100
-        print(json.dumps(dict(installed_package=True,outside_source_cwd=True,mcp_tools=10,
+        print(json.dumps(dict(installed_package=True,outside_source_cwd=True,mcp_tools=13,
+                              controller_tools_verified=True,controller_demo_verified=True,
                               negotiated_protocol=initialized.protocolVersion,
                               paid_provider_calls=0,demo_synthetic_calls=1)))
 

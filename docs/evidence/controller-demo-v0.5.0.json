@@ -1,0 +1,64 @@
+{
+  "schema": "controller-demo/v1",
+  "evidence": "synthetic-offline",
+  "paid_calls": 0,
+  "trace": [
+    {
+      "source": "s0",
+      "raw_proposal": "code",
+      "held_hint": "code",
+      "reason": "supported",
+      "evidence_origin": "injected-transport"
+    },
+    {
+      "source": "s1",
+      "raw_proposal": "fixture",
+      "held_hint": "code",
+      "reason": "challenger-pending",
+      "evidence_origin": "injected-transport"
+    },
+    {
+      "source": "s2",
+      "raw_proposal": "code",
+      "held_hint": "code",
+      "reason": "supported",
+      "evidence_origin": "injected-transport"
+    },
+    {
+      "source": "s3",
+      "raw_proposal": "fixture",
+      "held_hint": "code",
+      "reason": "challenger-pending",
+      "evidence_origin": "injected-transport"
+    },
+    {
+      "source": "s4",
+      "raw_proposal": "code",
+      "held_hint": "code",
+      "reason": "supported",
+      "evidence_origin": "injected-transport"
+    },
+    {
+      "source": "s5",
+      "raw_proposal": "fixture",
+      "held_hint": "code",
+      "reason": "challenger-pending",
+      "evidence_origin": "injected-transport"
+    },
+    {
+      "source": "s6",
+      "raw_proposal": "fixture",
+      "held_hint": "fixture",
+      "reason": "switched",
+      "evidence_origin": "injected-transport"
+    }
+  ],
+  "stateless_switches": 5,
+  "controller_switches": 1,
+  "sustained_change_extra_observations": 1,
+  "manual_correction": "code",
+  "stopped_hint": null,
+  "authority": "none",
+  "may_execute": false,
+  "limitation": "Mechanics on a designed trace, not measured agent productivity."
+}

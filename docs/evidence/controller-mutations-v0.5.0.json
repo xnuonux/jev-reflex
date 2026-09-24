@@ -1,0 +1,38 @@
+[
+  {
+    "mutation": "drop_signal_binding",
+    "killed": true,
+    "exit": 1,
+    "summary": "FAILED (failures=2)"
+  },
+  {
+    "mutation": "drop_snapshot_binding",
+    "killed": true,
+    "exit": 1,
+    "summary": "FAILED (failures=1)"
+  },
+  {
+    "mutation": "drop_single_vote",
+    "killed": true,
+    "exit": 1,
+    "summary": "FAILED (failures=3)"
+  },
+  {
+    "mutation": "drop_revision_check",
+    "killed": true,
+    "exit": 1,
+    "summary": "FAILED (failures=1)"
+  },
+  {
+    "mutation": "switch_without_confirmation",
+    "killed": true,
+    "exit": 1,
+    "summary": "FAILED (failures=3)"
+  },
+  {
+    "mutation": "pause_allows_old_source",
+    "killed": true,
+    "exit": 1,
+    "summary": "FAILED (failures=1)"
+  }
+]

@@ -45,6 +45,24 @@ remain available to the caller: the job stores no raw-input spool. See `docs/BUL
 
 ## Close the loop
 
+For a sequence of changing evidence, use `controller_open`, `controller_event`
+and `controller_inspect` (MCP names have the `jev_reflex_` prefix). Bind one exact
+semantic `signal` (primitive, question and candidate descriptions), then announce
+each new snapshot with `bind` before inference. Feed a recorded raw batch/shared
+request and item through `observe`; never invent scores. One source gets one vote.
+The held hint may refer to an older supporting snapshot: inspect its provenance
+and recheck relevance. Two consecutive fresh proposals switch direction by
+default; abstentions do not vote. Use these for reversible investigation/attention
+or UI interpretation, never permission, completion, or concealment of evidence.
+
+`override` records an explicit caller correction; it is not proof of human approval.
+Pause/stop clear hints immediately when committed. Resume requires a new snapshot
+before accepting further model evidence. Permanent stop cannot resume. Exact event
+replay reads current state. These tools neither trigger inference nor cancel any
+provider call; the host still runs its own actions and cancellation. Full schemas
+and bounded retention policy: `docs/CONTROLLERS.md`. Python callers can use
+`jev_reflex.api.invoke(service, 'controller_event', arguments)` just like the CLI.
+
 Record typed outcomes only after observing them: missed important evidence, routing rework, assessment, or measured downstream usage/duration. Use one measurement ID per actual shared run. Missing data stays unknown. Do not ask Jev to grade itself as independent ground truth. Compare complete workflows, including extra calls and rework, before claiming improvement.
 
 For labelled decisions, `jev-reflex shadow-report` reports per-route confusion

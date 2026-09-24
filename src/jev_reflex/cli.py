@@ -49,11 +49,12 @@ def initialize(root, daily_usd, enabled):
 
 def main(argv=None):
     parser = argparse.ArgumentParser(description='Jev Reflex: small decisions, host-owned actions.')
-    parser.add_argument('--version', action='version', version='jev-reflex 0.4.0')
+    parser.add_argument('--version', action='version', version='jev-reflex 0.5.0')
     sub = parser.add_subparsers(dest='command', required=True)
     sub.add_parser('serve', help='Start stdio MCP; install the [mcp] extra.')
     sub.add_parser('doctor', help='Local readiness/accounting only; no inference.')
     sub.add_parser('demo', help='Offline synthetic replay, reuse and context-pin demonstration.')
+    sub.add_parser('controller-demo', help='Offline stateful vs stateless trace; no inference.')
     sub.add_parser('catalog', help='List versioned recipes and their boundaries.')
     sub.add_parser('evaluate', help='Compare paired workflow measurements from JSON stdin; no inference.')
     sub.add_parser('shadow-report', help='Offline confusion matrices for labelled semantic decisions.')
@@ -71,6 +72,9 @@ def main(argv=None):
             print(value) if type(value) is str else emit(value)
         elif args.command == 'init':
             emit(initialize(ROOT, args.daily_usd, args.enable))
+        elif args.command == 'controller-demo':
+            from .controller_demo import run
+            emit(run())
         elif args.command == 'demo':
             from .demo import run
             emit(run())

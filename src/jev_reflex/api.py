@@ -7,13 +7,18 @@ METHODS = {
     'record_outcome': 'record_outcome', 'metrics': 'recipe_metrics',
     'context': 'context',
     'shared': 'shared', 'bulk': 'bulk', 'inspect_job': 'inspect_job', 'cancel_job': 'cancel_job',
+    'controller_open': 'open_controller', 'controller_event': 'event', 'controller_inspect': 'inspect',
 }
 
 
 def invoke(service: Service, method: str, arguments: dict) -> dict:
     require(type(method) is str and method in METHODS, 'unknown-method')
     require(type(arguments) is dict, 'arguments-object')
-    if method == 'context':
+    if method.startswith('controller_'):
+        from functools import partial
+        from . import controllers
+        target = partial(getattr(controllers, METHODS[method]), service)
+    elif method == 'context':
         from functools import partial
         from .context import plan
         target = partial(plan, service)

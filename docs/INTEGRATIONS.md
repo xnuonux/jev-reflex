@@ -6,6 +6,20 @@ Install the Python package with the `[mcp]` extra for MCP, or without it for CLI
 
 All transports use the same `Service`: identical validation, reservations, idempotency, provider pins, recipes and outcomes. Host integration is explicit. Installing the server makes tools available; it does **not** rewrite the host's reasoning loop or force every agent to call Jev. Give your agent the [skill](../skills/jev-reflex/SKILL.md) and evaluate when it helps.
 
+Version 0.5 adds three stateful tools: `controller_open`, `controller_event`, and
+`controller_inspect` (prefix `jev_reflex_` for MCP). A host announces a source
+snapshot, obtains a raw batch/shared result, then submits its recorded request/item
+reference to the controller. Feed multiple independent signals into separate
+controllers; the host combines their hints in its normal reasoning loop. A stable
+route never launches a tool or switches the host model itself. The full lifecycle
+and correction/stop examples are in [CONTROLLERS.md](CONTROLLERS.md).
+
+Upgrade the installed package and restart its MCP process to expose the new tools.
+Existing raw calls continue to work. Pre-0.5 receipts lack semantic signal hashes
+and cannot seed a controller; they remain valid historical call receipts. Do not
+repeat paid work solely to upgrade a receipt. Existing private plugins and client
+registrations are not automatically replaced by installing this public package.
+
 ### Claude Code
 
 ```sh

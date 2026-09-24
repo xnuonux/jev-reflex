@@ -4,6 +4,13 @@
 
 A portable decision sidecar for coding agents. Give Jev the bounded judgments around a task while your main model keeps the plan, the reasoning, and the tools.
 
+**New in 0.5: stateful reflex controllers.** Keep an investigation direction or
+semantic signal across changing evidence, damp rapid switching, preserve explicit
+corrections and reject late results. Controllers read recorded Jev answers;
+updating them makes no model call. Available through MCP, JSON CLI, Python and
+the pi bridge. Try `jev-reflex controller-demo` for an offline walkthrough.
+See [the controller contract and examples](docs/CONTROLLERS.md).
+
 Works through **stdio MCP**, a **JSON CLI**, and a **Python API**. Includes a native **pi extension** and setup guides for Claude Code, Codex, OpenCode, and custom function-calling agents, including applications using DeepSeek.
 
 Independent open-source project by **Eternities**. Not an official TypeSafe product. MIT licensed.
@@ -139,6 +146,9 @@ The context tool generates the snapshot from the actual supplied packet. It retu
 | `jev_reflex_batch` | `batch` | Typed Choice/Noul questions |
 | `jev_reflex_shared` | `shared` | One shared state, many independent questions |
 | `jev_reflex_bulk` | `bulk` | Pack and advance up to 10,000 explicit items |
+| `jev_reflex_controller_open` | `controller_open` | Bind a stable semantic question and temporal policy |
+| `jev_reflex_controller_event` | `controller_event` | Apply recorded evidence, source updates, corrections or stop |
+| `jev_reflex_controller_inspect` | `controller_inspect` | Read the held hint and its supporting evidence |
 | `jev_reflex_inspect_job` | `inspect_job` | Durable progress and paginated results, no inference |
 | `jev_reflex_cancel_job` | `cancel_job` | Stop further job admission; issued calls still settle |
 | `jev_reflex_recipe` | `recipe` | One versioned workflow per batch |

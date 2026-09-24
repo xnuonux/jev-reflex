@@ -78,6 +78,21 @@ def probability(value):
     return value
 
 
+def signal_contract(value):
+    """Validate the semantic question contract, independent of source/item IDs."""
+    require(type(value) is dict, 'signal-contract')
+    primitive = value.get('primitive')
+    require(primitive in ('choice', 'noul'), 'primitive')
+    require(set(value) == {'primitive', 'question'} | ({'choices'} if primitive == 'choice' else set()),
+            'signal-fields')
+    signal = dict(primitive=primitive, question=text(value['question'], 1200))
+    if primitive == 'choice':
+        choices = value['choices']
+        require(type(choices) is dict and 2 <= len(choices) <= 255, 'choices')
+        signal['choices'] = {identifier(k): text(v, 300) for k, v in choices.items()}
+    return signal
+
+
 def build(project, task, request_id, snapshot_id, items, profile=OPENROUTER, limits=None):
     limits = limits or DEFAULT_CAPACITY
     for v in (project, task, request_id, snapshot_id):
@@ -290,6 +305,13 @@ class Service:
                   identity TEXT PRIMARY KEY, digest TEXT NOT NULL, plan TEXT NOT NULL,
                   snapshot TEXT NOT NULL, cancelled INTEGER NOT NULL DEFAULT 0);
                 CREATE TABLE IF NOT EXISTS bulk_cancellations (identity TEXT PRIMARY KEY);
+                CREATE TABLE IF NOT EXISTS controllers (
+                  identity TEXT PRIMARY KEY, contract TEXT NOT NULL, state TEXT NOT NULL);
+                CREATE TABLE IF NOT EXISTS controller_events (
+                  identity TEXT NOT NULL, event_id TEXT NOT NULL, digest TEXT NOT NULL,
+                  PRIMARY KEY(identity,event_id));
+                CREATE TABLE IF NOT EXISTS controller_snapshots (
+                  identity TEXT NOT NULL, snapshot TEXT NOT NULL, PRIMARY KEY(identity,snapshot));
                 CREATE TABLE IF NOT EXISTS admission (
                   identity TEXT PRIMARY KEY, route TEXT NOT NULL, started REAL NOT NULL,
                   request_bytes INTEGER NOT NULL);
@@ -365,9 +387,9 @@ class Service:
                       reused_recipe_receipts_today=reused,
                       pending_or_uncertain_calls=pending, minimum_start_interval_s=0,
                       active_calls=pending-uncertain, uncertain_calls=uncertain,
-                      implementation_revision='portable-0.4.0', max_inflight=self.capacity()['max_concurrency'],
+                      implementation_revision='portable-0.5.0', max_inflight=self.capacity()['max_concurrency'],
                       capacity=self.capacity(), packing_basis='serialized-utf8-bytes-not-token-counts',
-                      recipe_revision='v0.4.0',
+                      recipe_revision='v0.5.0',
                       per_call_reservation_microusd=ENVELOPE, model=self.profile.returned_model,
                       provider_route=self.profile.name, key_variable=self.profile.key_variable,
                       day_basis='UTC', primitives=['choice', 'noul'], raw_input_logging=False,
@@ -654,7 +676,10 @@ class Service:
             if reported is not None:
                 charge = reported
             out = result('ok', results=answers, generation_id_sha256=hashlib.sha256(generation.encode('utf-8')).hexdigest() if generation else None, returned_model=self.profile.returned_model,
+                         signal_digests={item['id']: digest(signal_contract({k: item[k] for k in
+                             ('primitive', 'question', 'choices') if k in item})) for item in items},
                          provider='TypeSafe', provider_route=self.profile.name, usage_tokens=tokens,
+                         evidence_origin='provider' if self.live_transport else 'injected-transport',
                          cost_basis='provider-reported' if reported is not None else 'conservative-reservation',
                          snapshot_id=snapshot_id, request_digest=bound,
                          revalidate_snapshot_before_use=True)

@@ -41,12 +41,27 @@ class MCPTests(unittest.TestCase):
                     self.assertEqual({t.name for t in tools.tools},{
                         'jev_reflex_status','jev_reflex_context','jev_reflex_batch','jev_reflex_recipe',
                         'jev_reflex_record_outcome','jev_reflex_recipe_metrics',
-                        'jev_reflex_shared','jev_reflex_bulk','jev_reflex_inspect_job','jev_reflex_cancel_job'})
+                        'jev_reflex_shared','jev_reflex_bulk','jev_reflex_inspect_job','jev_reflex_cancel_job', 'jev_reflex_controller_open',
+                        'jev_reflex_controller_event', 'jev_reflex_controller_inspect'})
                     args=dict(project='fixture',task='mcp',request_id='one',snapshot_id='v1',items=[dict(id='relevant',primitive='noul',text='compiler error',question='About software?')])
                     a=await session.call_tool('jev_reflex_batch',args)
                     self.assertFalse(a.isError)
                     data=a.structuredContent or json.loads(a.content[0].text)
                     self.assertEqual(data['results']['relevant']['value'],True)
+                    controller_key = dict(project='fixture', task='mcp', privacy_namespace='public', controller_id='relevance')
+                    opened = await session.call_tool('jev_reflex_controller_open', controller_key | dict(
+                        snapshot_id='v1', signal=dict(primitive='noul', question='About software?')))
+                    self.assertFalse(opened.isError)
+                    observed = await session.call_tool('jev_reflex_controller_event', controller_key | dict(
+                        event_id='observe', expected_revision=0, event=dict(kind='observe', receipt=dict(
+                            kind='batch', request_id='one', item_id='relevant'))))
+                    self.assertFalse(observed.isError)
+                    observed_data = observed.structuredContent or json.loads(observed.content[0].text)
+                    self.assertEqual(observed_data['controller']['selected_id'], 'true')
+                    inspected = await session.call_tool('jev_reflex_controller_inspect', controller_key)
+                    self.assertFalse(inspected.isError)
+                    self.assertEqual((inspected.structuredContent or json.loads(inspected.content[0].text))['controller'],
+                                     observed_data['controller'])
                     b=await session.call_tool('jev_reflex_batch',args)
                     self.assertTrue((b.structuredContent or json.loads(b.content[0].text))['replayed'])
                     args['items'][0]['primitive']='score'
@@ -82,7 +97,7 @@ class MCPTests(unittest.TestCase):
                     self.assertTrue(invalid.isError)
                     status=await session.call_tool('jev_reflex_status',{})
                     sd=status.structuredContent or json.loads(status.content[0].text)
-                    self.assertEqual(sd['implementation_revision'],'portable-0.4.0')
+                    self.assertEqual(sd['implementation_revision'],'portable-0.5.0')
                     self.assertEqual(sd['minimum_start_interval_s'],0)
                     self.assertEqual(sd['max_inflight'],4)
                     self.assertEqual(sd['calls_today'],2)

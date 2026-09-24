@@ -1,5 +1,5 @@
 """Jev Reflex: advisory decisions, accounted calls, host-owned actions."""
 from .reflex import Service, ReflexError
 
-__version__ = "0.4.0"
+__version__ = "0.5.0"
 __all__ = ["Service", "ReflexError", "__version__"]

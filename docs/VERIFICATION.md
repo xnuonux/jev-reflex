@@ -1,4 +1,40 @@
-# Verification: public 0.4.0
+# Verification
+
+## Public 0.5.0
+
+Stateful controller qualification: Windows, Python 3.13.15, Node 24.18.0,
+MCP 1.30.0. Exact final source hashes and counts are in
+`verification-v0.5.0.json`. The earlier 0.4 manifest remains historical.
+
+Final local results: **113 Python tests**, including **20 controller tests**,
+**5 Node bridge tests**, **6/6 targeted mutations detected**, and an installed
+**13-tool MCP** round trip. Counts overlap; do not sum controller and Python totals.
+
+An independent reviewer found semantic-question substitution, lost support/vote
+provenance and stale next-step/challenger reporting in development. Those were
+fixed and the reviewer reran the controller suite, with no remaining blocking
+defect found in the inspected cut. This is independent agent review, not a human
+audit or live-provider qualification.
+
+The new boundary is exercised through actual JSON CLI processes, official-SDK
+stdio MCP and the pi subprocess bridge. A non-editable installed wheel is tested
+outside the source checkout with credentials removed. New controller calls make
+zero inference requests. All inference in these release checks is injected fake
+transport, labelled as such in the receipts.
+
+Six targeted source mutations in isolated copies must fail the controller tests:
+removing signal binding, source binding, one-vote enforcement, revision checking,
+confirmation counting, and invalidation of a pre-pause source. See
+`evidence/controller-mutations-v0.5.0.json`. This checks actual failures, not just
+the presence of guard clauses. It is not an exhaustive mutation campaign.
+
+The deterministic demo reduces five switches to one on a deliberately alternating
+trace, with one extra observation before accepting a sustained change. No live
+agent productivity or general accuracy improvement is claimed. Temporal stability
+can preserve a wrong interpretation; source limits, abstention, visible evidence
+and explicit corrections make that inspectable, not impossible.
+
+## Historical public 0.4.0
 
 Local qualification on 24 September 2026 UTC: Windows, Python 3.13.15,
 Node 24.18.0, MCP 1.30.0 and Pydantic 2.13.5. `verification.json` binds

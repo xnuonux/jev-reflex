@@ -30,7 +30,7 @@ test('bulk bridge carries large jobs and supports progress and cancellation meth
     const options={command:process.execPath,prefixArgs:[file]};
     const r=await callReflex('bulk',{items:Array.from({length:10000},(_,i)=>({id:'i'+i,text:'public fixture'}))},options);
     assert.equal(r.count,10000);
-    for (const method of ['shared','inspect_job','cancel_job']) assert.equal((await callReflex(method,{},options)).method,method);
+    for (const method of ['shared','inspect_job','cancel_job','controller_open','controller_event','controller_inspect']) assert.equal((await callReflex(method,{},options)).method,method);
   } finally { await rm(dir,{recursive:true,force:true}); }
 });
 
