@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+.pytest_cache/
+build/
+dist/
+.env
+.env.*
+*.sqlite*
+*.db*
+policy.json
+quota-overrides.json
+local-results/
+/build-release.log

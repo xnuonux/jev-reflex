@@ -1,0 +1,6 @@
+{
+  "project":"widget", "task":"fix-build", "request_id":"context-001",
+  "privacy_namespace":"widget-selected-source", "goal":"Find the cause of the failing build",
+  "chunks":[{"id":"failure","text":"Type error: string is not assignable to number.","source_ref":"build-output:lines-10-12","mandatory_pinned":true}],
+  "reuse_success":true
+}

@@ -1,0 +1,6 @@
+{
+  "schema": "jev-reflex-paired/v1",
+  "synthetic": true,
+  "baseline": [{"case_id":"fixture-a","input_sha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","correct":true,"important_missed":false,"abstained":false,"duration_ms":100,"cost_microusd":null,"input_tokens":100,"output_tokens":5}],
+  "candidate": [{"case_id":"fixture-a","input_sha256":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa","correct":false,"important_missed":true,"abstained":false,"duration_ms":60,"cost_microusd":null,"input_tokens":60,"output_tokens":5}]
+}
